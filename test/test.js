@@ -305,17 +305,17 @@ exports.differentSets = function(test){
                      [47.5500,-52.6667, "St. John's"]];
 
 
-  proximity.addCoordinates(people, {zset: "geo:locations:people"}, function(err, reply){
+  proximity.addCoordinates(people, {zset: "geo:locations:people", expire: 3600}, function(err, reply){
     if(err) throw err;
     // console.log("ADD successful:", reply);
 
-    proximity.addCoordinates(places, {zset: "geo:locations:places"}, function(err, reply){
+    proximity.addCoordinates(places, {zset: "geo:locations:places", expire: 3600}, function(err, reply){
       if(err) throw err;
       // console.log("ADD successful:", reply);
 
 
       // will find all PEOPLE ~5000m from the passed in coordinate
-      proximity.query(39.9523, -75.1638, 5000, {zset: "geo:locations:people"}, function(err, people){
+      proximity.query(39.9523, -75.1638, 5000, {zset: "geo:locations:people", expire: 3600}, function(err, people){
         if(err) throw err;
         // console.log(people);
 
@@ -323,7 +323,7 @@ exports.differentSets = function(test){
 
 
         // will find all PLACES ~5000m from the passed in coordinate
-        proximity.query(39.9523, -75.1638, 5000, {zset: "geo:locations:places"}, function(err, places){
+        proximity.query(39.9523, -75.1638, 5000, {zset: "geo:locations:places", expire: 3600}, function(err, places){
 
           if(err) throw err;
           // console.log(places);
