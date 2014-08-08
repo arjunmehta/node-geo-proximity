@@ -53,6 +53,59 @@ exports.addCoordinate = function(test){
 
 };
 
+exports.addCoordinateWithExpire = function(test){
+
+  client.flushall();
+
+  test.expect(1);
+
+  proximity.addCoordinate(43.6667, -79.4167, "Toronto_EXPIRE", {zset: "geo_expire", expire: 3}, function (err, reply){
+    if(err) throw err;
+
+    setTimeout(function() {
+      client.get("Toronto", function(err, reply) {
+        test.equals(reply, null);
+        test.done();
+      });
+    }, 3000);
+  });
+
+};
+
+exports.queryWithExpire = function(test){
+
+  client.flushall();
+
+  test.expect(4);
+
+  proximity.addCoordinate(43.6667, -79.4167, "Toronto_EXPIRE", {zset: "geo_expire", expire: 3}, function (err, reply){
+    if(err) throw err;
+    test.equals(reply, 1);
+  });
+
+  var places = [[39.9523, -75.1638,  "Philadelphia"],
+               [37.4688, -122.1411, "Palo Alto"],
+               [37.7691, -122.4449, "San Francisco"],
+               [47.5500, -52.6667,  "St. John's"]];
+
+   proximity.addCoordinates(places, {zset: "geo_expire", expire: 3}, function (err, reply){
+     if(err) throw err;
+
+     test.equal(err, null);
+     test.equal(places.length, reply);
+   });
+
+  setTimeout(function() {
+    proximity.query(43.646838, -79.403723, 10000000, function(err, replies){
+      if(err) console.error(err);
+
+      test.equals(replies.length, 0);
+      test.done();
+    });
+  }, 3000);
+
+};
+
 
 exports.addCoordinates = function(test){  
 
@@ -87,6 +140,36 @@ exports.addCoordinates = function(test){
 
 };
 
+exports.addCoordinatesWithExpire = function(test){  
+  
+  test.expect(3);
+
+  var coordinateArray = [[39.9523, -75.1638,  "Philadelphia"],
+                        [37.4688, -122.1411, "Palo Alto"],
+                        [37.7691, -122.4449, "San Francisco"],
+                        [47.5500, -52.6667,  "St. John's"]];
+
+  proximity.addCoordinates(coordinateArray, {zset: "geo_expire", expire: 3}, function (err, reply){
+    if(err) throw err;
+   
+    test.equal(err, null);
+    test.equal(coordinateArray.length, reply);
+  });
+  
+  setTimeout(function() {
+    var replies = [];
+    
+    for(var i = 0; i < coordinateArray.length; i++) {
+      client.get(coordinateArray[i][1], function(err, reply) {
+        if(reply) replies.push(reply);
+      });
+    }
+    
+    test.equal(replies.length, 0);
+    test.done();
+  }, 3000);
+
+};
 
 exports.queryBasic = function(test){
 
@@ -94,7 +177,6 @@ exports.queryBasic = function(test){
 
   proximity.query(lat, lon, 50000, function(err, replies){
     if(err) throw err;
-    // console.log("NUMBER OF GEOHASH MATCHES", replies.length);
     test.equal(replies.length, 6835);
     test.done();
   }); 
