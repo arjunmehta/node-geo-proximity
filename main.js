@@ -217,7 +217,6 @@ var queryByRanges = function(ranges, options, callBack){
  * @param {Function} callBack
  */
 var queryByProximity = function(lat, lon, radius, options, callBack){
-
   if(typeof options === "function" && callBack === undefined){
     callBack = options;
     options = {};
@@ -285,8 +284,8 @@ var addCoordinate = function(lat, lon, key_name, options, callBack){
 
   client.zadd(zset, geohash.encode_int(lat, lon, bitDepth), key_name, callBack);
   
-  console.log("--", key_name);
-  if(options.expire !== undefined) client.expire(key_name, options.expire);
+  if(options.expire !== undefined) 
+    client.expire(zset, options.expire);
 };
 
 
@@ -311,25 +310,19 @@ var addCoordinates = function(coordinatesArray, options, callBack){
   var zset = options.zset !== undefined ? options.zset : redis_clientZSetName;
 
   var args = [];
-  var key_names = [];
   var i, hash;
 
   for (i=0; i<coordinatesArray.length; i++){
     args.push(geohash.encode_int(coordinatesArray[i][0], coordinatesArray[i][1], bitDepth));
     args.push(coordinatesArray[i][2]);
-    key_names.push(coordinatesArray[i][2]);
   }
 
   args.unshift(zset);
-
+  
   client.zadd(args, callBack);
   
-  if(options.expire !== undefined) {
-    key_names.forEach(function(key_name) {
-      console.log("--", key_name);
-      client.expire(key_name, options.expire);
-    });
-  }
+  // if(options.expire !== undefined)
+//     client.expire(zset, options.expire);
 };
 
 
