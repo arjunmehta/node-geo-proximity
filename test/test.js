@@ -155,6 +155,34 @@ exports['Get Locations'] = function(test) {
     });
 };
 
+exports['Generate Geohash Array'] = function(test) {
+
+    var expectedArray = [
+        415671,
+        415677,
+        415679,
+        415714,
+        415715,
+        415720,
+        415721,
+        415722,
+        415723
+    ];
+
+    test.expect(expectedArray.length + 1);
+
+    var geohashes = proximity.getGeohashArray(lat, lon, 50000);
+
+    for (var i = 0; i < expectedArray.length; i++) {
+        test.equal(geohashes.hashArray[i], expectedArray[i]);
+    }
+    
+    test.equal(geohashes.bitDepth, 20);
+
+    test.done();
+};
+
+
 
 exports['Generate Cache'] = function(test) {
 
@@ -193,7 +221,7 @@ exports['Performant Query'] = function(test) {
 
     var cachedQuery = proximity.getQueryCache(lat, lon, 50000);
 
-    proximity.nearbyWithQueryCache(cachedQuery, function(err, replies){
+    proximity.nearbyWithQueryCache(cachedQuery, function(err, replies) {
         test.equal(replies.length, 6835);
         test.done();
     });
@@ -220,7 +248,7 @@ exports['Remove Location'] = function(test) {
     var oneToDelete = "";
 
     proximity.nearby(lat, lon, 50000, function(err, replies) {
-        
+
         if (err) throw err;
 
         oneToDelete = replies[replies.length - 1];
