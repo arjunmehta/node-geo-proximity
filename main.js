@@ -5,7 +5,9 @@ var query = require('./lib/query'),
     location = query.location,
     locations = query.locations;
 
-var range = require('./lib/range');
+var range = require('./lib/range'),
+    hashArray = range.getHashArrayFromRadius,
+    queryRange = range.getQueryRangesFromRadius;
 
 
 // main constructor
@@ -93,12 +95,12 @@ Set.prototype.nearby = function(lat, lon, radius, opts, callBack) {
         opts = {};
     }
 
-    var ranges = range(lat, lon, radius, this.caching);    
+    var ranges = queryRange(lat, lon, radius, this.caching);
     queryByRanges(this, ranges, opts.values, callBack);
 };
 
 Set.prototype.getQueryCache = function(lat, lon, radius) {
-    return range(lat, lon, radius, false);    
+    return queryRange(lat, lon, radius, false);
 };
 
 Set.prototype.nearbyWithQueryCache = function(ranges, opts, callBack) {
@@ -109,6 +111,10 @@ Set.prototype.nearbyWithQueryCache = function(ranges, opts, callBack) {
     }
 
     queryByRanges(this, ranges, opts.values, callBack);
+};
+
+Set.prototype.getGeohashesForRadius = function(lat, lon, radius) {
+    return hashArray(lat, lon, radius);
 };
 
 
