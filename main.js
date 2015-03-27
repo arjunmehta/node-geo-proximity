@@ -113,7 +113,7 @@ Set.prototype.nearbyWithQueryCache = function(ranges, opts, callBack) {
     queryByRanges(this, ranges, opts.values, callBack);
 };
 
-Set.prototype.getGeohashesForRadius = function(lat, lon, radius) {
+Set.prototype.getGeohashArray = function(lat, lon, radius) {
     return hashArray(lat, lon, radius);
 };
 
