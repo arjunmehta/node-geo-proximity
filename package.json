@@ -1,6 +1,6 @@
 {
     "name": "geo-proximity",
-    "version": "2.2.0",
+    "version": "2.2.1",
     "author": {
         "name": "Arjun Mehta",
         "email": "arjunmeht@gmail.com",
@@ -11,6 +11,11 @@
         "geohash",
         "proximity",
         "nearby",
+        "locations",
+        "spatial index",
+        "2D spatial index",
+        "spatial",
+        "index",
         "redis",
         "geolocation",
         "geoproximity",

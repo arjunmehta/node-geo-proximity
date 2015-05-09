@@ -24,7 +24,7 @@ npm install geo-proximity
 ```
 
 ## Basic Usage
-Usage of this module should be extremely simple. Just make sure that your redis server is accessible to your Node environment. Because this module uses redis as a store, almost all methods have integrated error handling for queries.
+Usage of this module should be extremely simple. Just make sure that your Redis server is accessible to your Node environment. Because this module uses Redis as a store, almost all methods have integrated error handling for queries.
 
 ### Include and Initialize
 
@@ -92,10 +92,10 @@ proximity.locations(['Toronto', 'Philadelphia', 'Palo Alto', 'San Francisco', 'O
 
 ### Search for Nearby Locations
 
-Now you can look for locations that exist within a certain range of any particular coordinate in the system.
+Now you can look for locations that exist approximately within a certain distance of any particular coordinate in the system.
 
 ```javascript
-// look for all points within 5000m of Toronto.
+// look for all points within ~5000m of Toronto.
 proximity.nearby(43.646838, -79.403723, 5000, function(err, locations){
   if(err) console.error(err)
   else console.log('nearby locations:', locations)
@@ -184,6 +184,18 @@ places.nearby(43.646838, -79.403723, 5000, function(err, places){
 })
 ```
 
+#### Delete Different Sets
+
+If you no longer need one of your newly created sets, you can just delete it. Either of the following methods will remove the set from redis and destroy its contents. If you add locations to that set again it will recreate the set on redis and you can use as usual.
+
+```javascript
+// will delete the people set and its contents
+people.delete()
+
+// OR
+proximity.deleteSet('people')
+```
+
 ## Performant Querying
 If you intend on performing the same query over and over again with the same initial coordinate and the same distance, you can cache the **geohash ranges** that are used to search for nearby locations. Use the **proximity.getQueryCache** and **proximity.nearbyWithQueryCache** methods together in order to do this.
 
@@ -217,6 +229,9 @@ var proximity = require('geo-proximity').initialize(client, {
 ### proximity.addSet(setName)
 This method will return a subset that can be queried and hold a unique set of locations from the main set. It will store these new locations in a new redis zset with a unique name related to the parent set (eg. `geo:locations:people`).
 
+### proximity.deleteSet(setName, callBack)
+This method will delete a subset and its contents. You should use the callBack to check for errors or to wait for confirmation that the set is deleted, but this is probably not necessary.
+
 ### proximity.addLocation(lat, lon, locationName, callBack)
 Add a new coordinate to your set.
 
@@ -238,13 +253,16 @@ Remove the specified coordinate by name.
 ### proximity.removeLocations(coordinateNameArray, callBack)
 Remove a set of coordinates by name. `coordinateNameArray` must be of the form `[nameA,nameB,nameC,...,nameN]`.
 
-### proximity.nearby(lat, lon, radius, {options}, callBack)
-Use this function for a basic search by proximity within the given latitude and longitude and radius (in meters). It is not ideal to use this method if you intend on making the same query multiple times. **If performance is important and you'll be making the same query over and over again, it is recommended you instead have a look at proximity.nearbyWithQueryCache and promixity.getQueryCache.** Otherwise this is an easy method to use.
+### proximity.delete(callBack)
+Removes all locations and deletes the zSet from Redis. You should use the callBack to check for errors or to wait for confirmation that the set is deleted, but this is probably not necessary.
+
+### proximity.nearby(lat, lon, distance, {options}, callBack)
+Use this function for a basic search by proximity within the given latitude and longitude and approximate distance (in meters). It is not ideal to use this method if you intend on making the same query multiple times. **If performance is important and you'll be making the same query over and over again, it is recommended you instead have a look at proximity.nearbyWithQueryCache and promixity.getQueryCache.** Otherwise this is an easy method to use.
 
 #### Options
 - `values` **Boolean**: Default `false`. Instead of returning a flat array of key names, it will instead return a full set of keynames with coordinates in the form of `[[name, lat, lon], [name, lat, lon]...]`.This will be a slower query compared to just returning the keynames because the coordinates need to be calculated from the stored geohashes.
 
-### proximity.getQueryCache(lat, lon, radius)
+### proximity.getQueryCache(lat, lon, distance)
 Get the query ranges to use with **proximity.nearbyWithQueryCache**. This returns an array of geohash ranges to search your set for. `bitDepth` is optional and defaults to 52, set it if you have chosen to store your coordinates at a different bit depth. Store the return value of this function for making the same query often.
 
 ### proximity.nearbyWithQueryCache(cache, {options}, callBack)
