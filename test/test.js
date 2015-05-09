@@ -158,25 +158,27 @@ exports['Get Locations'] = function(test) {
 exports['Generate Geohash Array'] = function(test) {
 
     var expectedArray = [
-        415671,
-        415677,
+        415721,
+        415723,
+        415722,
         415679,
+        415677,
+        415671,
         415714,
         415715,
-        415720,
-        415721,
-        415722,
-        415723
+        415720
     ];
 
     test.expect(expectedArray.length + 1);
 
     var geohashes = proximity.getGeohashArray(lat, lon, 50000);
 
+    // console.log(geohashes);
+
     for (var i = 0; i < expectedArray.length; i++) {
         test.equal(geohashes.hashArray[i], expectedArray[i]);
     }
-    
+
     test.equal(geohashes.bitDepth, 20);
 
     test.done();

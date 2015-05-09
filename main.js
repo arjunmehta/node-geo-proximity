@@ -7,7 +7,8 @@ var query = require('./lib/query'),
 
 var range = require('./lib/range'),
     hashArray = range.getHashArrayFromRadius,
-    queryRange = range.getQueryRangesFromRadius;
+    queryRange = range.getQueryRangesFromRadius,
+    bitDepthForRadius = range.bitDepthForRadius;
 
 
 // main constructor
@@ -115,6 +116,10 @@ Set.prototype.nearbyWithQueryCache = function(ranges, opts, callBack) {
 
 Set.prototype.getGeohashArray = function(lat, lon, radius) {
     return hashArray(lat, lon, radius);
+};
+
+Set.prototype.getRadiusBitDepth = function(radius) {
+    return bitDepthForRadius(radius);
 };
 
 
